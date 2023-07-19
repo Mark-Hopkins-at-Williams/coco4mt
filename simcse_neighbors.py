@@ -25,7 +25,7 @@ class SimCSESelector:
 
     def common_neighbors(self, sents):
         nonempty_sents = [sent for sent in sents if len(sent) > 0]
-        neighbor_sents = self.model.search(nonempty_sents)
+        neighbor_sents = self.model.search(nonempty_sents, threshold=0.0)
         closests = []
         for neighbors in neighbor_sents:
             if len(neighbors) > 1:
