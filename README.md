@@ -1,4 +1,4 @@
-# Coco4mt
+# coco4mt
 
 
 ### To select lines for the SimCSE similarity (2+ neighbors)
