@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import argparse
 
 # from spacy.tokenizer import Tokenizer
 # from spacy.lang.en import English
@@ -46,13 +47,13 @@ class DecayLogFrequency:
         lf_slist.sort(key=lambda i: delfy_scores[i], reverse=True)
         # line 9 cont. (take the top 20% of sentences by delfy)
         new_selected = set()
-        num_selected = 0
+        toks_selected = 0
         for sent_index in lf_slist:
-            if num_selected >= self.budget:
+            if toks_selected >= self.budget:
                 break
             if sent_index not in self.selected:
                 new_selected.add(sent_index)
-                num_selected += 1
+                toks_selected += len(self.sentences[sent_index])
         return new_selected
 
     def gwu(self, word):
@@ -112,7 +113,11 @@ def tokenize_all_lines(filename):
 
 
 def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):    
-    total_budget = int(budget_percentage * len(tokenized_sents))
+    total_tok_count = 0
+    for sent in tokenized_sents:  
+        total_tok_count += len(sent)
+
+    total_budget = int(budget_percentage * total_tok_count)
     selected = set()
     for i in range(1, num_rounds + 1):
         print("Round " + str(i) + ":")
@@ -127,14 +132,19 @@ def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
 
 
 if __name__ == "__main__":
-    sentences = tokenize_all_lines(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--lines')
+    parser.add_argument('-o', '--outfile')
+    parser.add_argument('-b', "--budget", type=float)
+    parser.add_argument('-r', '--rounds', type=int)
+    args = parser.parse_args()
+
+    sentences = tokenize_all_lines(args.lines)
     to_exclude = lines_to_exclude()
     for index in to_exclude:
         sentences[index] = [250004, 2]
-    budget_percentage = 0.2
-    num_rounds = int(sys.argv[2])
-    selected_lines = run_delfy(sentences, budget_percentage, num_rounds)
-    with open('delfy.txt', 'w') as writer:
+    selected_lines = run_delfy(sentences, args.budget, args.rounds)
+    with open(args.outfile, 'w') as writer:
         for line in selected_lines:
             writer.write(f'{line}\n')
    
