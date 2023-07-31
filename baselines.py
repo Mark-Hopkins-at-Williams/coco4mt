@@ -23,4 +23,5 @@ class UniformRandomRanker:
 
 class WeightedRandomRanker:
 
+    # TODO: support the rank method by borrowing code from sample_weighted.py
     pass

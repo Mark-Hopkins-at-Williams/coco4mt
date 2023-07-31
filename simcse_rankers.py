@@ -20,8 +20,8 @@ class SimCSERanker:
         centrality = dict()
         for sent in closests:
             centrality[sent] = 1 + centrality.get(sent, 0)
-            #if centrality[sent] > 2:
-            #    centrality[sent] = 2
+            if centrality[sent] > 2: # treats everything with centrality >= 2 as equal
+                centrality[sent] = 2
         centrality = list(centrality.items())
         if self.tiebreaker == "random":
             shuffle(centrality)
