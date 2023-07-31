@@ -1,10 +1,10 @@
 from cocodata import load_coco_english
 import argparse
-from simcse_neighbors import SimCSESelector
-
+from simcse_rankers import SimCSERanker
+from baselines import UniformRandomRanker, LengthRanker
 
 def fill_sentence_budget(ranker, candidates, max_sents):  
-    line_nums = ranker.rank(candidates)
+    line_nums = list(ranker.rank(candidates))
     selected = line_nums[:max_sents]
     selected.sort()
     return selected
@@ -25,22 +25,36 @@ def fill_token_budget(ranker, candidates, max_tokens):
     return selected
 
 
+def lookup_ranker(ranker_name):
+    if ranker_name == "simcse":
+        ranker = SimCSERanker(train)
+    elif ranker_name == "uniform":
+        ranker = UniformRandomRanker()
+    elif ranker_name == "length":
+        ranker = LengthRanker()
+    else:
+        raise Exception(f"Unrecognized ranker: {ranker_name}")
+    return ranker    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', "--budget_pct", type=float, required=True)
     parser.add_argument('-u', "--budget_unit", type=str, required=True)
+    parser.add_argument('-r', "--ranker", type=str, required=True)
     args = parser.parse_args()
-    train = load_coco_english("train")     
+    train = load_coco_english("train") 
+    ranker = lookup_ranker(args.ranker)
     if args.budget_unit == "sentence":
         sent_budget = int(args.budget_pct * len(train))
-        lines = fill_sentence_budget(SimCSESelector(train), train, sent_budget)
+        lines = fill_sentence_budget(ranker, train, sent_budget)
     elif args.budget_unit == "token":
         tokenized_train = [line.split() for line in train]
         total_num_tokens = 0
         for tok in tokenized_train:
             total_num_tokens += len(tok)
         word_budget = int(args.budget_pct * total_num_tokens)
-        lines = fill_token_budget(SimCSESelector(train), train, word_budget)
+        lines = fill_token_budget(ranker, train, word_budget)
     else:
         raise Exception(f"Unrecognized budget unit: {args.budget_unit}")
     for line_num in lines:

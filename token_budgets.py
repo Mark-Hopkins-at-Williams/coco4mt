@@ -3,7 +3,6 @@ from numpy.random import multinomial
 import sys
 from cocodata import load_coco_english
 import argparse
-from simcse_neighbors import SimCSESelector
 
 
 

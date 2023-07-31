@@ -2,6 +2,8 @@ from random import sample
 import sys
 
 
+
+
 def uniform_sample(num_instances, budget=0.2):
     """Samples a specified percentage (budget) of training instances."""
     return sample(list(range(num_instances)), int(budget*num_instances))

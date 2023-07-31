@@ -1,7 +1,7 @@
 from simcse import SimCSE
 from random import shuffle
 
-class SimCSESelector:
+class SimCSERanker:
 
     def __init__(self, all_lines, model_name="princeton-nlp/sup-simcse-bert-base-uncased"):
         self.model = SimCSE(model_name)
