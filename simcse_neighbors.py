@@ -1,37 +1,27 @@
 from simcse import SimCSE
-from cocodata import load_coco_english
-
+from random import shuffle
 
 class SimCSESelector:
 
-    def __init__(self, all_lines):
-        self.model = SimCSE("princeton-nlp/sup-simcse-bert-base-uncased")
+    def __init__(self, all_lines, model_name="princeton-nlp/sup-simcse-bert-base-uncased"):
+        self.model = SimCSE(model_name)
         self.model.build_index(all_lines)
         self.all_lines = all_lines
 
-    def count(self, sents):
-        counts = dict()
-        for sent in sents:
-            counts[sent] = 1 + counts.get(sent, 0)
-        return counts
-
-    def get_repeats(self, sents):
-        repeats = []
-        sent_counts = self.count(sents)
-        for sent in sent_counts:
-            if sent_counts[sent] >= 2:
-                repeats.append(sent)
-        return repeats
-
-    def common_neighbors(self, sents):
+    def rank(self, sents):
         nonempty_sents = [sent for sent in sents if len(sent) > 0]
         neighbor_sents = self.model.search(nonempty_sents, threshold=0.0)
         closests = []
         for neighbors in neighbor_sents:
             if len(neighbors) > 1:
-                closests.append(neighbors[1][0])
-        repeats = self.get_repeats(closests)
+                closests.append(neighbors[1][0])        
+        sent_counts = dict()
+        for sent in closests:
+            sent_counts[sent] = 1 + sent_counts.get(sent, 0)
+        sent_counts = list(sent_counts.items())
+        shuffle(sent_counts)
+        ranked_sents = [x[0] for x in sorted(sent_counts, key=lambda x: -x[1])]
         line_nums = []
-        for sent in sorted(repeats, key=len):
+        for sent in ranked_sents:
             line_nums.append(self.all_lines.index(sent))
         return line_nums

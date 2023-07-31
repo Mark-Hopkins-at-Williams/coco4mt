@@ -1,4 +1,4 @@
-from paralleldata2 import nllb_data
+from paralleldata import nllb_data
 from transformers import DataCollatorForSeq2Seq
 from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer
 from transformers import MBartForConditionalGeneration, MBart50TokenizerFast
