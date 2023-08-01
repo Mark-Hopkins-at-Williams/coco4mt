@@ -47,10 +47,12 @@ class DecayLogFrequency:
         new_selected = set()
         toks_selected = 0
         for sent_index in lf_slist:
+            print("toks selected: " + str(toks_selected))
             if toks_selected >= self.budget:
                 break
             if sent_index not in self.selected:
                 new_selected.add(sent_index)
+                print("just selected sentence " + str(sent_index) + ", length " + str(len(self.sentences[sent_index])))
                 toks_selected += len(self.sentences[sent_index])
         return new_selected
 
@@ -104,7 +106,6 @@ class DecayLogFrequency:
             return 0
         for tok in sentence:
             delfy += self.fwu(str(tok)) * self.decay(str(tok))
-        # print("sent_ind: " + str(sentence_index) + ", delfy: " + str(delfy/k))
         return delfy / k
 
     def token_count(self, sentence_indices):

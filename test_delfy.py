@@ -45,3 +45,75 @@ class TestDelfy(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()   
+
+"""
+Round 1:
+Budget this round: 5
+toks selected: 0
+just selected sentence 0, length 5
+toks selected: 5
+Round 2:
+Budget this round: 5
+toks selected: 0
+just selected sentence 3, length 6
+toks selected: 6
+0: ['a', 'a', 'a', 'b', 'b']
+3: ['c', 'c', 'd', 'a', 'b', 'd']
+.Round 1:
+Budget this round: 4
+toks selected: 0
+just selected sentence 0, length 7
+toks selected: 7
+Round 2:
+Budget this round: 4
+toks selected: 0
+just selected sentence 2, length 4
+toks selected: 4
+0: ['a', 'a', 'a', 'a', 'a', 'a', 'a']
+2: ['c', 'c', 'b', 'a']
+.Round 1:
+Budget this round: 4
+toks selected: 0
+just selected sentence 0, length 7
+toks selected: 7
+Round 2:
+Budget this round: 4
+toks selected: 0
+just selected sentence 2, length 4
+toks selected: 4
+0: ['a', 'a', 'a', 'a', 'a', 'a', 'a']
+2: ['c', 'c', 'b', 'a']
+.Round 1:
+Budget this round: 5
+toks selected: 0
+just selected sentence 2, length 3
+toks selected: 3
+just selected sentence 3, length 5
+toks selected: 8
+Round 2:
+Budget this round: 5
+toks selected: 0
+just selected sentence 1, length 4
+toks selected: 4
+just selected sentence 0, length 6
+toks selected: 10
+0: ['a', 'b', 'c', 'b', 'a', 'a']
+1: ['b', 'd', 'c', 'a']
+2: ['a', 'a', 'd']
+3: ['a', 'e', 'a', 'a', 'b']
+F
+======================================================================
+FAIL: test_delfy4 (__main__.TestDelfy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/mnt/storage/alexroot/coco4mt/test_delfy.py", line 40, in test_delfy4
+    self.assertEqual({2, 1}, sent_ids)
+AssertionError: Items in the second set but not the first:
+0
+3
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.005s
+
+FAILED (failures=1)
+"""
