@@ -55,8 +55,9 @@ if __name__ == "__main__":
     parser.add_argument('-p', "--budget_pct", type=float, required=True)
     parser.add_argument('-u', "--budget_unit", type=str, required=True)
     parser.add_argument('-r', "--ranker", type=str, required=True)
+    parser.add_argument('-c', "--coco_eng_path", type=str, required=True)
     args = parser.parse_args()
-    train = load_coco_english("train")
+    train = load_coco_english(args.coco_eng_path, "train")
     ranker = lookup_ranker(args.ranker, args.budget_unit)
     if args.budget_unit == "sentence":
         sent_budget = int(args.budget_pct * len(train))

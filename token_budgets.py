@@ -121,8 +121,9 @@ if __name__ == "__main__":
     parser.add_argument('-f', "--filter")
     parser.add_argument('-s', "--sort")
     parser.add_argument('-b', "--budget", type=float)
+    parser.add_argument('-c', "--coco_eng_path", type=str, required=True)
     args = parser.parse_args()
-    train = load_coco_english("train")
+    train = load_coco_english(args.coco_eng_path, "train")
     tokenized_train = [line.split() for line in train]
     total_num_words = 0
     for tok in tokenized_train:
