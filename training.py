@@ -9,12 +9,19 @@ import os
 os.environ["TOKENIZERS_PARALLELISM"] = "false" # suppresses a transformers warning
 
 def train(src, tgt, line_file, evaluation_split="validation"):
-    # expect ISO 639-1 language codes (e.g.: "en") for src and tgt    
+    """
+    Trains the mbart-large-50-many-to-many-mmt checkpoint given a source
+    language, target language, file to take sentences from, and evalutation
+    split from the coco4mt data. Expects ISO 639-1 language codes
+    (e.g.: "en") for src and tgt.
+    """
     lines = set()
     with open(line_file) as reader:
         for line in reader:
             line = int(line.strip())
-            lines.add(line)    
+            lines.add(line)
+
+    # The code3, code5, and langs_model dictionaries allow for standard language inputs.
     code3 = {
         "en": "eng",
         "de": "deu",
@@ -50,6 +57,9 @@ def train(src, tgt, line_file, evaluation_split="validation"):
     max_length = 128
 
     def preprocess_function(examples):
+        """
+        Enables the tokenizer.
+        """
         inputs = [ex[code3[src]] for ex in examples["translation"]]
         targets = [ex[code3[tgt]] for ex in examples["translation"]]
         model_inputs = tokenizer(
@@ -67,6 +77,9 @@ def train(src, tgt, line_file, evaluation_split="validation"):
     metric = evaluate.load("sacrebleu")
 
     def compute_metrics(eval_preds):
+        """
+        Sets up and evaluates with BLEU given a list of predictions.
+        """
         preds, labels = eval_preds
         # In case the model returns more than the prediction logits
         if isinstance(preds, tuple):

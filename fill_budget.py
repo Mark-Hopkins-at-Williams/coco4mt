@@ -4,13 +4,19 @@ from simcse_rankers import SimCSERanker
 from baselines import UniformRandomRanker, LengthRanker
 
 
-def fill_sentence_budget(ranker, candidates, max_sents):  
+def fill_sentence_budget(ranker, candidates, max_sents):
+    """
+    Using the specified ranker, fills the specified sentence budget.
+    """
     line_nums = list(ranker.rank(candidates))
     selected = line_nums[:max_sents]
     return selected
 
 
-def fill_token_budget(ranker, candidates, max_tokens):    
+def fill_token_budget(ranker, candidates, max_tokens):
+    """
+    Using the specified ranker, fills the specified token budget.
+    """
     length = 0
     selected = []
     line_nums = ranker.rank(candidates)
@@ -25,6 +31,13 @@ def fill_token_budget(ranker, candidates, max_tokens):
 
 
 def lookup_ranker(ranker_name, budget_unit):
+    """
+    Returns the ranker associated with the given name, if it exists. Otherwise,
+    raises an exception. 
+    When requesting the simcse ranker, uses the longest sentence from each
+    cluster if using a sentence budget and a random sentence from each cluster
+    if using a token budget.
+    """
     if ranker_name == "simcse":
         tiebreaker = "length" if budget_unit == "sentence" else "random"
         ranker = SimCSERanker(train, tiebreaker)
@@ -34,7 +47,7 @@ def lookup_ranker(ranker_name, budget_unit):
         ranker = LengthRanker()
     else:
         raise Exception(f"Unrecognized ranker: {ranker_name}")
-    return ranker    
+    return ranker
 
 
 if __name__ == "__main__":
@@ -43,7 +56,7 @@ if __name__ == "__main__":
     parser.add_argument('-u', "--budget_unit", type=str, required=True)
     parser.add_argument('-r', "--ranker", type=str, required=True)
     args = parser.parse_args()
-    train = load_coco_english("train") 
+    train = load_coco_english("train")
     ranker = lookup_ranker(args.ranker, args.budget_unit)
     if args.budget_unit == "sentence":
         sent_budget = int(args.budget_pct * len(train))

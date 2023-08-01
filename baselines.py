@@ -2,6 +2,10 @@ from random import shuffle
 
 
 class LengthRanker:
+    """
+    Defines an object which takes a specified list of sentences,
+    sorts by length, and returns them in order.
+    """
 
     def __init__(self, tokenizer_fn=lambda sent: sent.split()):
         self.tokenizer_fn = tokenizer_fn
@@ -13,6 +17,10 @@ class LengthRanker:
 
 
 class UniformRandomRanker:
+    """
+    Defines an object which takes a specified list of sentences,
+    shuffles them randomly, and returns them in that order.
+    """
 
     def rank(self, sents):
         line_nums = list(range(len(sents)))

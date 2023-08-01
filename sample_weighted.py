@@ -5,6 +5,12 @@ import sys
 
 # size-weighted random distribution
 def weighted_sample(tokenized_sents, budget_pct):
+    """
+    Uses the numpy.random.multinomial function to take a sample of the given
+    sentences, weighted by token length, accounting for sentences chosen
+    multiple times, and iterating until the budget is exactly met. It uses a
+    sentence budget.
+    """
     total_tokens = 0
     for line in tokenized_sents:
         total_tokens += len(line)

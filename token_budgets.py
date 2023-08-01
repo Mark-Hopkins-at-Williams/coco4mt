@@ -5,9 +5,13 @@ from cocodata import load_coco_english
 import argparse
 
 
-
-
 def get_wsample(lines, budget):
+    """
+    Uses the numpy.random.multinomial function to take a sample of the given
+    sentences, weighted by token length, accounting for sentences chosen
+    multiple times, and iterating until the budget is approximately met. It
+    uses a token budget.
+    """
     total_tokens = 0
     tokenized_sents = lines
 
@@ -17,7 +21,7 @@ def get_wsample(lines, budget):
     for line in tokenized_sents:
         weights.append(len(line) / total_tokens)
 
-    # get average sentences per token
+    # get average sentences per token (to determine how many sentences to select)
     avg_spt = len(tokenized_sents) / total_tokens
 
     tok_selected = 0
@@ -25,16 +29,13 @@ def get_wsample(lines, budget):
     selected = []
     for i in range(len(tokenized_sents)):
         selected.append(0)
-    
+
     while remaining > 0:
-        print("remaining at top of loop: " + str(remaining))
-        print("tokens selected at top of loop: " + str(tok_selected))
         new_selected = multinomial(int(0.8 * remaining * avg_spt), weights).tolist()
         # integrate values selected in this round into cumulative selected values
         for i in range(len(tokenized_sents)):
             selected[i] += new_selected[i]
             tok_selected += new_selected[i] * len(tokenized_sents[i])
-        print("naive tokens selected after selection round: " + str(tok_selected))
         # set weights for selected sentences to zero and correct for sentences that were selected more than once
         for i in range(len(tokenized_sents)):
             if selected[i] > 0:
@@ -43,7 +44,6 @@ def get_wsample(lines, budget):
                 old_freq = selected[i]
                 selected[i] = 1
                 tok_selected -= (old_freq - selected[i]) * len(tokenized_sents[i])
-        print("adjusted tokens selected: " + str(tok_selected))
 
         # fix weights so they still add up to 1
         new_total_weight = 0
@@ -54,12 +54,12 @@ def get_wsample(lines, budget):
         for i in range(len(weights)):
             weights[i] *= weight_adjustor
         remaining = budget - tok_selected
-        print("remaining at bottom of loop: " + str(remaining))
-        print("tokens selected at bottom of loop: " + str(tok_selected))
+
+        # stops selection if the number of tokens selected is very close to the budget
         if remaining <= 20 and remaining >= 0:
             break
+        # corrects for overselection
         while remaining < 0:
-            print("remaining at top of negative loop: " + str(remaining))
             for i in range(len(selected)):
                 if selected[i] == 1:
                     selected[i] = 0
@@ -75,7 +75,16 @@ def get_wsample(lines, budget):
     return selected_lines
 
 
-def get_lines(filter_type, sort_type, budget):    
+def get_lines(filter_type, sort_type, budget):
+    """
+    Given parameters for how sentences should be selected and a budget
+    (expressed as a percentage), gets the desired number of sentences in the
+    desired way. Filter type controls whether SimCSE sentence embedding is
+    used; specify "none" to bypass SimCSE and "sim2" to use SimCSE to select
+    from sentences that are the closest neighbor of at least two other
+    sentences as defined by SimCSE. Supports sorting with a weighted or uniform
+    random distribution, or a length-based sort.
+    """
     length = 0
     selected = []
     if filter_type == "none":
@@ -101,7 +110,7 @@ def get_lines(filter_type, sort_type, budget):
             length += len_sent
         else:
             break
-    
+
     selected.sort()
     return selected
 
@@ -109,8 +118,8 @@ def get_lines(filter_type, sort_type, budget):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', '--outfile')
-    parser.add_argument('-f', "--filter") 
-    parser.add_argument('-s', "--sort") 
+    parser.add_argument('-f', "--filter")
+    parser.add_argument('-s', "--sort")
     parser.add_argument('-b', "--budget", type=float)
     args = parser.parse_args()
     train = load_coco_english("train")
@@ -118,7 +127,7 @@ if __name__ == "__main__":
     total_num_words = 0
     for tok in tokenized_train:
         total_num_words += len(tok)
-    word_budget = args.budget * total_num_words 
+    word_budget = args.budget * total_num_words
     lines = get_lines(args.filter, args.sort, word_budget)
     with open(args.outfile, 'w') as sys.stdout:
         for line_num in lines:

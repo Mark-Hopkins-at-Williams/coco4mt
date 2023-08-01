@@ -2,6 +2,14 @@ from simcse import SimCSE
 from random import shuffle
 
 class SimCSERanker:
+    """
+    Defines objects which take a specified list of sentences, use SimCSE
+    sentence embedding to create a vector space of all these sentences,
+    identifies all sentences which are the closest neighbor of at least two
+    other sentences, and sorts by a certain criterion. If a sentence budget is
+    used, it sorts by length. If a token budget is used, it shuffles (uniform
+    random distribution). It returns this as a list in the generated order.
+    """
 
     def __init__(self, all_lines, tiebreaker,
                  model_name="princeton-nlp/sup-simcse-bert-base-uncased"):
@@ -11,12 +19,15 @@ class SimCSERanker:
         self.tiebreaker = tiebreaker
 
     def rank(self, sents):
+        """
+        Ranks the provided sentences based on the metric attributed to self.
+        """
         nonempty_sents = [sent for sent in sents if len(sent) > 0]
         neighbor_sents = self.model.search(nonempty_sents, threshold=0.0)
         closests = []
         for neighbors in neighbor_sents:
             if len(neighbors) > 1:
-                closests.append(neighbors[1][0])        
+                closests.append(neighbors[1][0])
         centrality = dict()
         for sent in closests:
             centrality[sent] = 1 + centrality.get(sent, 0)

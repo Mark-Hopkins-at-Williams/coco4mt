@@ -2,35 +2,33 @@ import numpy as np
 import sys
 import argparse
 
-# from spacy.tokenizer import Tokenizer
-# from spacy.lang.en import English
 from transformers import AutoTokenizer
 from paralleldata import lines_to_exclude
 
-# make dictionary that stores counts (key is token, value is count) up to that point
-# sort, then run through
-
-# run on test corpus
-
 class DecayLogFrequency:
 
-    def __init__(self, sentences, selected, budget):        
+    def __init__(self, sentences, selected, budget):
         self.sentences = sentences
-        self.unselected = set([i for i in range(len(sentences)) if i not in selected])                
+        self.unselected = set([i for i in range(len(sentences)) if i not in selected])
         self.selected = selected
         self.unselected_tok_counts = self.token_count(self.unselected)
         self.selected_tok_counts = self.token_count(self.selected)
-        self.uhat = []  
-        self.uhat_tok_counts = dict()      
+        self.uhat = []
+        self.uhat_tok_counts = dict()
         self.l1 = 1.0
-        self.l2 = 1.0        
+        self.l2 = 1.0
         self.budget = budget
         # precompute swugwu (for efficiency)
         self.swugwu = 0
         for w in self.unselected_tok_counts:
             self.swugwu += self.gwu(w)
-        
+
     def run(self):
+        """
+        Runs the delfy algorithm as defined in the paper, once. For a single round,
+        calculates the delfy metric for each sentence and returns the sentences
+        selected in that round to be added to the set of all selected sentences.
+        """
         # lines 2-5 of algorithm
         # compute lf(s) for every untranslated sentence s and sort
         lf_slist = list(self.unselected)
@@ -45,7 +43,7 @@ class DecayLogFrequency:
                 self.uhat_tok_counts[tok] = 1 + self.uhat_tok_counts.get(tok, 0)
         # line 9 of algorithm
         lf_slist.sort(key=lambda i: delfy_scores[i], reverse=True)
-        # line 9 cont. (take the top 20% of sentences by delfy)
+        # line 9 cont. (take the top budget% of sentences by delfy)
         new_selected = set()
         toks_selected = 0
         for sent_index in lf_slist:
@@ -57,28 +55,48 @@ class DecayLogFrequency:
         return new_selected
 
     def gwu(self, word):
+        """
+        Calculates the function G(w|U) as defined in the paper, which is used
+        to find the logarithm frequency of that word in the unselected corpus.
+        """
         return np.log(self.unselected_tok_counts[word] + 1)
 
     def fwu(self, word):
+        """
+        Calculates the logarithm frequency of a word in the unselected corpus
+        as defined in the paper.
+        """
         return self.gwu(word) / self.swugwu
-    
+
     def lf(self, sentence_index):
+        """
+        Calculates the average logarithm frequency of all tokens in the
+        sentence at the provided sentence index.
+        """
         lf = 0
         sentence = self.sentences[sentence_index]
         k = len(sentence)
         if k == 0:
-            return 0      
+            return 0
         for tok in sentence:
             lf += self.fwu(str(tok)) * np.exp(-self.l1 * self.selected_tok_counts.get(str(tok), 0))
-        # print("sent_ind: " + str(sentence_index) + ", lf: " + str(lf/k))
         return lf / k
 
     def decay(self, word):
+        """
+        Calculates the decay term defined in the paper, which is used to reduce
+        the delfy scores of sentences that are redundant when considering
+        other sentences with higher lf scores.
+        """
         csil = self.selected_tok_counts.get(word, 0)
         csius = self.uhat_tok_counts.get(word, 0)
         return np.exp(-self.l1 * csil) * np.exp(-self.l2 * csius)
 
     def delfy(self, sentence_index):
+        """
+        Defines the delfy index, used to rank each
+        unselected sentence in each round.
+        """
         sentence = self.sentences[sentence_index]
         delfy = 0
         k = len(sentence)
@@ -90,8 +108,11 @@ class DecayLogFrequency:
         return delfy / k
 
     def token_count(self, sentence_indices):
+        """
+        Finds the number of tokens in the entire corpus. Used for budgeting.
+        """
         result = dict()
-        for sent_index in sentence_indices:            
+        for sent_index in sentence_indices:
             for tok in self.sentences[sent_index]:
                 token = str(tok)
                 result[token] = result.get(token, 0) + 1
@@ -99,22 +120,27 @@ class DecayLogFrequency:
 
 
 def tokenize_all_lines(filename):
-    # nlp = English()
-    # tokenizer = Tokenizer(nlp.vocab)
+    """
+    Returns a list of all the lines in the provided file, tokenized.
+    """
     model_checkpoint = "facebook/mbart-large-50-many-to-many-mmt"
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
     lines = []
     with open(filename) as reader:
         for line in reader:
-            line = line.strip() 
+            line = line.strip()
             line = tokenizer(line)
             lines.append(line['input_ids'])
-    return lines  
+    return lines
 
 
-def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):    
+def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
+    """
+    Runs the delfy algorithm as defined in the paper for the provided number of
+    rounds, with the provided budget. Returns the final selection set.
+    """
     total_tok_count = 0
-    for sent in tokenized_sents:  
+    for sent in tokenized_sents:
         total_tok_count += len(sent)
 
     total_budget = int(budget_percentage * total_tok_count)
@@ -147,4 +173,3 @@ if __name__ == "__main__":
     with open(args.outfile, 'w') as writer:
         for line in selected_lines:
             writer.write(f'{line}\n')
-   

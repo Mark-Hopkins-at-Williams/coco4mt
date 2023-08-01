@@ -3,6 +3,7 @@ from pandas import DataFrame
 
 DATA_DIR = "/home/data"
 
+# The code3 dictionary translates from two-letter language codes to three-letter language codes for simplicity of use.
 code3 = {
         "en": "eng",
         "de": "deu",
@@ -15,15 +16,23 @@ code3 = {
 
 
 def enumerate_lines(filename):
+    """
+    Returns a list containing the sentences in the specified file, stripped.
+    """
     lines = []
     with open(filename) as reader:
         for line in reader:
-            line = line.strip() 
+            line = line.strip()
             lines.append(line)
-    return lines        
+    return lines
 
 
 def lines_to_exclude():
+    """
+    Reads the exclude.txt file to find the indices of all the sentences defined
+    as excluded (do not have translations in all languages), and returns a set
+    containing those indices.
+    """
     result = set()
     with open('exclude.txt') as reader:
         for line in reader:
@@ -33,12 +42,12 @@ def lines_to_exclude():
 
 def coco_data(src, tgt, lines=None):
     """Creates a DatasetDict with the Coco4MT data.
-    
+
     If you provide a set of line numbers (as zero-indexed ints) for the
     lines argument, then this function will subselect only those lines
     for the training partition (the full validation and test sets are
-    always used).    
-    
+    always used).
+
     """
     train_corpora = {'eng': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/hr_dataset/eng/train.txt"),
                      'deu': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/hr_dataset/deu/train.txt"),
@@ -61,33 +70,33 @@ def coco_data(src, tgt, lines=None):
                      'fra': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/lr_dataset/fra/test.txt"),
                      'mya': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/lr_dataset/mya/test.txt"),
                      'guj': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/lr_dataset/guj/test.txt")}
-    
+
     data = []
     corpus = train_corpora
     for i in range(len(corpus[code3[src]])):
         if lines is None or i in lines:
             if len(corpus[code3[src]][i]) > 0 and len(corpus[code3[tgt]][i]) > 0:
-                item = {'id': i, 
+                item = {'id': i,
                         'translation': {code3[src]: corpus[code3[src]][i],
                                         code3[tgt]: corpus[code3[tgt]][i]}}
                 data.append(item)
     train_ds = Dataset.from_pandas(DataFrame(data=data))
-    
+
     data = []
     corpus = valid_corpora
     for i in range(len(corpus[code3[src]])):
         if len(corpus[code3[src]][i]) > 0 and len(corpus[code3[tgt]][i]) > 0:
-            item = {'id': i, 
+            item = {'id': i,
                     'translation': {code3[src]: corpus[code3[src]][i],
                                     code3[tgt]: corpus[code3[tgt]][i]}}
             data.append(item)
     valid_ds = Dataset.from_pandas(DataFrame(data=data))
-    
+
     data = []
     corpus = test_corpora
     for i in range(len(corpus[code3[src]])):
         if len(corpus[code3[src]][i]) > 0 and len(corpus[code3[tgt]][i]) > 0:
-            item = {'id': i, 
+            item = {'id': i,
                     'translation': {code3[src]: corpus[code3[src]][i],
                                     code3[tgt]: corpus[code3[tgt]][i]}}
             data.append(item)
@@ -101,43 +110,43 @@ def coco_data(src, tgt, lines=None):
 
 def nllb_data(src, tgt, lines=None):
     """Creates a DatasetDict with the NLLB data.
-    
+
     If you provide a set of line numbers (as zero-indexed ints) for the
     lines argument, then this function will subselect only those lines
     for the training partition (the full validation and test sets are
-    always used).    
-    
+    always used).
+
     """
-    
+
     data = []
     subcorpus = enumerate_lines(f'{DATA_DIR}/nllb/parallelized/{src}')
     target_corpus = enumerate_lines(f'{DATA_DIR}/nllb/parallelized/{tgt}')
     for i in range(len(subcorpus)):
         if lines is None or i in lines:
             if len(subcorpus[i]) > 0 and len(target_corpus[i]) > 0:
-                item = {'id': i, 
+                item = {'id': i,
                         'translation': {src: subcorpus[i],
                                         tgt: target_corpus[i]}}
                 data.append(item)
     train_ds = Dataset.from_pandas(DataFrame(data=data))
-    
+
     data = []
     subcorpus = enumerate_lines(f'{DATA_DIR}/flores200_dataset/dev/{src}.dev')
     target_corpus = enumerate_lines(f'{DATA_DIR}/flores200_dataset/dev/{tgt}.dev')
     for i in range(len(subcorpus)):
         if len(subcorpus[i]) > 0 and len(target_corpus[i]) > 0:
-            item = {'id': i, 
+            item = {'id': i,
                     'translation': {src: subcorpus[i],
                                     tgt: target_corpus[i]}}
             data.append(item)
     valid_ds = Dataset.from_pandas(DataFrame(data=data))
-    
+
     data = []
     subcorpus = enumerate_lines(f'{DATA_DIR}/flores200_dataset/devtest/{src}.devtest')
     target_corpus = enumerate_lines(f'{DATA_DIR}/flores200_dataset/devtest/{tgt}.devtest')
     for i in range(len(subcorpus)):
         if len(subcorpus[i]) > 0 and len(target_corpus[i]) > 0:
-            item = {'id': i, 
+            item = {'id': i,
                     'translation': {src: subcorpus[i],
                                     tgt: target_corpus[i]}}
             data.append(item)
