@@ -1,15 +1,8 @@
 import numpy as np
 import sys
 
-# from spacy.tokenizer import Tokenizer
-# from spacy.lang.en import English
 from transformers import AutoTokenizer
 from paralleldata import lines_to_exclude
-
-# make dictionary that stores counts (key is token, value is count) up to that point
-# sort, then run through
-
-# run on test corpus
 
 class DecayLogFrequency:
 
@@ -69,7 +62,6 @@ class DecayLogFrequency:
             return 0      
         for tok in sentence:
             lf += self.fwu(str(tok)) * np.exp(-self.l1 * self.selected_tok_counts.get(str(tok), 0))
-        # print("sent_ind: " + str(sentence_index) + ", lf: " + str(lf/k))
         return lf / k
 
     def decay(self, word):
@@ -85,7 +77,6 @@ class DecayLogFrequency:
             return 0
         for tok in sentence:
             delfy += self.fwu(str(tok)) * self.decay(str(tok))
-        # print("sent_ind: " + str(sentence_index) + ", delfy: " + str(delfy/k))
         return delfy / k
 
     def token_count(self, sentence_indices):
@@ -98,8 +89,6 @@ class DecayLogFrequency:
 
 
 def tokenize_all_lines(filename):
-    # nlp = English()
-    # tokenizer = Tokenizer(nlp.vocab)
     model_checkpoint = "facebook/mbart-large-50-many-to-many-mmt"
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
     lines = []
