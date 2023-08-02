@@ -127,6 +127,7 @@ if __name__ == "__main__":
     to_exclude = lines_to_exclude()
     for index in to_exclude:
         sentences[index] = [250004, 2]
+        
     budget_percentage = args.budget
     num_rounds = args.rounds
     selected_lines = run_delfy(sentences, budget_percentage, num_rounds)
