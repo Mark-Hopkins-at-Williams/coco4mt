@@ -1,11 +1,12 @@
 # To run the code in this repository, ensure you have the following installed.
 
 
-
-simcse       == 0.4
-datasets     == 2.12.0; python_version < '3.10.9'
-evaluate     == 0.4.0
-fairseq      == 0.12.2
-numpy        == 1.25.0
-pandas       == 1.5.3
-transformers == 4.30.2
+simcse         == 0.4
+datasets       == 2.12.0; python_version < '3.10.9'
+evaluate       == 0.4.0
+fairseq        == 0.12.2
+numpy          == 1.25.0
+pandas         == 1.5.3
+protobuf       == 3.20.3
+sentencepiece  == 0.1.99
+transformers   == 4.30.2
