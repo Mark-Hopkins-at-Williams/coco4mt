@@ -127,14 +127,21 @@ def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
 
 
 if __name__ == "__main__":
-    sentences = tokenize_all_lines("/home/data/coco4mt-shared-task/hr_dataset/eng/train.txt")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--lines')
+    parser.add_argument('-o', '--outfile')
+    parser.add_argument('-b', "--budget", type=float)
+    parser.add_argument('-r', '--rounds', type=int)
+    args = parser.parse_args()
+
+    sentences = tokenize_all_lines(args.lines)
     to_exclude = lines_to_exclude()
     for index in to_exclude:
         sentences[index] = [250004, 2]
-    budget_percentage = 0.2
-    num_rounds = 20
+    budget_percentage = args.budget
+    num_rounds = args.rounds
     selected_lines = run_delfy(sentences, budget_percentage, num_rounds)
-    with open('sent_delfy.txt', 'w') as writer:
+    with open(args.outfile, 'w') as writer:
         for line in selected_lines:
             writer.write(f'{line}\n')
    
