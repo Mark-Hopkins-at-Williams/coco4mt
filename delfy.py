@@ -51,9 +51,10 @@ class DecayLogFrequency:
             if toks_selected >= self.budget:
                 break
             if sent_index not in self.selected:
-                new_selected.add(sent_index)
-                print("just selected sentence " + str(sent_index) + ", length " + str(len(self.sentences[sent_index])))
-                toks_selected += len(self.sentences[sent_index])
+                if toks_selected + len(self.sentences[sent_index]) < self.budget:
+                    new_selected.add(sent_index)
+                    print("just selected sentence " + str(sent_index) + ", length " + str(len(self.sentences[sent_index])))
+                    toks_selected += len(self.sentences[sent_index])
         return new_selected
 
     def gwu(self, word):
