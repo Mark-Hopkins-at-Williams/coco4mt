@@ -31,11 +31,11 @@ To get a file containing sentence indices for a weighted random sample, use samp
 To get a file containing sentence indices for a sample selected using the delfy algorithm:
 For a sentence budget:
 
-    python sent_delfy.py -l [file to get lines from] -o [file to write sample to] -b [budget percentage (0 to 1)] -r [number of rounds for the delfy algorithm]
+    python sent_delfy.py -l [file to get lines from (takes sentences, not indices)] -o [file to write sample to] -b [budget percentage (0 to 1)] -r [number of rounds for the delfy algorithm]
 
 For a token budget:
 
-    python delfy.py -l [file to get lines from] -o [file to write sample to] -b [budget percentage (0 to 1)] -r [number of rounds for the delfy algorithm]
+    python delfy.py -l [file to get lines from (takes sentences, not indices)] -o [file to write sample to] -b [budget percentage (0 to 1)] -r [number of rounds for the delfy algorithm]
 
 
 To unit test the delfy algorithm on a token budget, run
@@ -43,7 +43,7 @@ To unit test the delfy algorithm on a token budget, run
     python test_delfy.py
 
 
-To train the mbart-large-50-many-to-many-mmt checkpoint on a desired lines file, run
+To train the mbart-large-50-many-to-many-mmt checkpoint on a desired lines file (takes indices), run
 
     python training.py [source language (as two-letter code)] [target language (as two-letter code)] [lines file] [evaluation split (defaults to "validation")]
 
