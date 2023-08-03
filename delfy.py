@@ -47,13 +47,11 @@ class DecayLogFrequency:
         new_selected = set()
         toks_selected = 0
         for sent_index in lf_slist:
-            print("toks selected: " + str(toks_selected))
             if toks_selected >= self.budget:
                 break
             if sent_index not in self.selected:
                 if toks_selected + len(self.sentences[sent_index]) < self.budget:
                     new_selected.add(sent_index)
-                    print("just selected sentence " + str(sent_index) + ", length " + str(len(self.sentences[sent_index])))
                     toks_selected += len(self.sentences[sent_index])
         return new_selected
 
@@ -150,6 +148,12 @@ def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
     for i in range(1, num_rounds + 1):
         print("Round " + str(i) + ":")
         budget_this_round = i * total_budget // num_rounds - (i - 1) * total_budget // num_rounds
+        # last round is "cleanup," gets unused tokens from previous rounds
+        if i == num_rounds:
+            toks_selected = 0
+            for sent in selected:
+                toks_selected += len(tokenized_sents[sent])
+            budget_this_round = total_budget - toks_selected
         print(f'Budget this round: {budget_this_round}')
         sys.stdout.flush()
         next_selected = DecayLogFrequency(tokenized_sents, selected, budget_this_round).run()
