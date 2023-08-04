@@ -1,7 +1,8 @@
 from simcse import SimCSE
 from random import shuffle
+from ranker import Ranker
 
-class SimCSERanker:
+class SimCSERanker(Ranker):
     """
     Defines objects which take a specified list of sentences, use SimCSE
     sentence embedding to create a vector space of all these sentences,
@@ -29,8 +30,10 @@ class SimCSERanker:
             if len(neighbors) > 1:
                 closests.append(neighbors[1][0])
         centrality = dict()
+        for sent in sents:
+            centrality[sent] = 0
         for sent in closests:
-            centrality[sent] = 1 + centrality.get(sent, 0)
+            centrality[sent] = 1 + centrality[sent]
             if centrality[sent] > 2: # treats everything with centrality >= 2 as equal
                 centrality[sent] = 2
         centrality = list(centrality.items())

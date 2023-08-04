@@ -146,7 +146,6 @@ def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
     total_budget = int(budget_percentage * total_tok_count)
     selected = set()
     for i in range(1, num_rounds + 1):
-        print("Round " + str(i) + ":")
         budget_this_round = i * total_budget // num_rounds - (i - 1) * total_budget // num_rounds
         # last round is "cleanup," gets unused tokens from previous rounds
         if i == num_rounds:
@@ -154,12 +153,9 @@ def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
             for sent in selected:
                 toks_selected += len(tokenized_sents[sent])
             budget_this_round = total_budget - toks_selected
-        print(f'Budget this round: {budget_this_round}')
         sys.stdout.flush()
         next_selected = DecayLogFrequency(tokenized_sents, selected, budget_this_round).run()
         selected |= next_selected
-    for i in sorted(selected):
-        print(f'{i}: {tokenized_sents[i]}')
     return selected
 
 

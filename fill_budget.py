@@ -7,6 +7,15 @@ from baselines import UniformRandomRanker, LengthRanker
 def fill_sentence_budget(ranker, candidates, max_sents):
     """
     Using the specified ranker, fills the specified sentence budget.
+
+    Parameters
+    ----------
+    ranker : Ranker
+        ...
+    candidates : Iterable[str]???
+        ...
+    max_sents : int
+        max number of sentences that the budget allows
     """
     line_nums = list(ranker.rank(candidates))
     selected = line_nums[:max_sents]

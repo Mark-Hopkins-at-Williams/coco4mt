@@ -1,7 +1,7 @@
 from random import shuffle
+from ranker import Ranker
 
-
-class LengthRanker:
+class LengthRanker(Ranker):
     """
     Defines an object which takes a specified list of sentences,
     sorts by length, and returns them in order.
@@ -16,7 +16,7 @@ class LengthRanker:
         return [i for (i, _) in sorted_sents]
 
 
-class UniformRandomRanker:
+class UniformRandomRanker(Ranker):
     """
     Defines an object which takes a specified list of sentences,
     shuffles them randomly, and returns them in that order.
@@ -29,7 +29,7 @@ class UniformRandomRanker:
             yield line_num
 
 
-class WeightedRandomRanker:
+class WeightedRandomRanker(Ranker):
 
     # TODO: support the rank method by borrowing code from sample_weighted.py
     pass
