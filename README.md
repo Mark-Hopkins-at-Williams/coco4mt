@@ -27,7 +27,7 @@ To get a file containing sentence indices for a sample selected using the delfy 
 
 To run all unit tests for the repository, run
 
-    python test_delfy.py
+    python unittests.py
 
 
 To train the mbart-large-50-many-to-many-mmt checkpoint on a desired lines file (takes indices), run
