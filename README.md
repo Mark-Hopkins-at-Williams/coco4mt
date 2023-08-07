@@ -21,16 +21,11 @@ To get a file containing sentence indices for a weighted random sample, use samp
 
 
 To get a file containing sentence indices for a sample selected using the delfy algorithm:
-For a sentence budget:
 
-    python sent_delfy.py -l [file to get lines from (takes sentences, not indices)] -o [file to write sample to] -b [budget percentage (0 to 1)] -r [number of rounds for the delfy algorithm]
-
-For a token budget:
-
-    python delfy.py -l [file to get lines from (takes sentences, not indices)] -o [file to write sample to] -b [budget percentage (0 to 1)] -r [number of rounds for the delfy algorithm]
+    python delfy.py -l [file to get lines from (takes sentences, not indices)] -o [file to write sample to] -b [budget percentage (0 to 1)] -u [budget unit ("sentence" or "token")] -r [number of rounds for the delfy algorithm]
 
 
-To unit test the delfy algorithm on a token budget, run
+To run all unit tests for the repository, run
 
     python test_delfy.py
 

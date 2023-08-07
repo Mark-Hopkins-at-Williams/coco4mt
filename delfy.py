@@ -7,7 +7,7 @@ from paralleldata import lines_to_exclude
 
 class DecayLogFrequency:
 
-    def __init__(self, sentences, selected, budget):
+    def __init__(self, sentences, selected, budget, budget_unit):
         self.sentences = sentences
         self.unselected = set([i for i in range(len(sentences)) if i not in selected])
         self.selected = selected
@@ -18,6 +18,7 @@ class DecayLogFrequency:
         self.l1 = 1.0
         self.l2 = 1.0
         self.budget = budget
+        self.budget_unit = budget_unit
         # precompute swugwu (for efficiency)
         self.swugwu = 0
         for w in self.unselected_tok_counts:
@@ -45,14 +46,24 @@ class DecayLogFrequency:
         lf_slist.sort(key=lambda i: delfy_scores[i], reverse=True)
         # line 9 cont. (take the top budget% of sentences by delfy)
         new_selected = set()
-        toks_selected = 0
-        for sent_index in lf_slist:
-            if toks_selected >= self.budget:
-                break
-            if sent_index not in self.selected:
-                if toks_selected + len(self.sentences[sent_index]) < self.budget:
+        selected_count = 0
+        if self.budget_unit == "token":
+            for sent_index in lf_slist:
+                if selected_count >= self.budget:
+                    break
+                if sent_index not in self.selected:
+                    if selected_count + len(self.sentences[sent_index]) < self.budget:
+                        new_selected.add(sent_index)
+                        selected_count += len(self.sentences[sent_index])
+        elif self.budget_unit == "sentence":
+            for sent_index in lf_slist:
+                if selected_count >= self.budget:
+                    break
+                if sent_index not in self.selected:
                     new_selected.add(sent_index)
-                    toks_selected += len(self.sentences[sent_index])
+                    selected_count += 1
+        else:
+            raise ValueError(f"Only budget units 'sentence' and 'token' are accepted: {self.budget_unit}")
         return new_selected
 
     def gwu(self, word):
@@ -134,28 +145,37 @@ def tokenize_all_lines(filename):
     return lines
 
 
-def run_delfy(tokenized_sents, budget_percentage=0.2, num_rounds=20):
+def run_delfy(tokenized_sents, budget_percentage=0.2, budget_unit="sentence", num_rounds=20):
     """
     Runs the delfy algorithm as defined in the paper for the provided number of
     rounds, with the provided budget. Returns the final selection set.
     """
-    total_tok_count = 0
-    for sent in tokenized_sents:
-        total_tok_count += len(sent)
+    if budget_unit == "token":
+        total_tok_count = 0
+        for sent in tokenized_sents:
+            total_tok_count += len(sent)
 
-    total_budget = int(budget_percentage * total_tok_count)
-    selected = set()
-    for i in range(1, num_rounds + 1):
-        budget_this_round = i * total_budget // num_rounds - (i - 1) * total_budget // num_rounds
-        # last round is "cleanup," gets unused tokens from previous rounds
-        if i == num_rounds:
-            toks_selected = 0
-            for sent in selected:
-                toks_selected += len(tokenized_sents[sent])
-            budget_this_round = total_budget - toks_selected
-        sys.stdout.flush()
-        next_selected = DecayLogFrequency(tokenized_sents, selected, budget_this_round).run()
-        selected |= next_selected
+        total_budget = int(budget_percentage * total_tok_count)
+        selected = set()
+        for i in range(1, num_rounds + 1):
+            budget_this_round = i * total_budget // num_rounds - (i - 1) * total_budget // num_rounds
+            # last round is "cleanup," gets unused tokens from previous rounds
+            if i == num_rounds:
+                toks_selected = 0
+                for sent in selected:
+                    toks_selected += len(tokenized_sents[sent])
+                budget_this_round = total_budget - toks_selected
+            next_selected = DecayLogFrequency(tokenized_sents, selected, budget_this_round, budget_unit).run()
+            selected |= next_selected
+    elif budget_unit == "sentence":
+        total_budget = int(budget_percentage * len(tokenized_sents))
+        selected = set()
+        for i in range(1, num_rounds + 1):
+            budget_this_round = i * total_budget // num_rounds - (i - 1) * total_budget // num_rounds
+            next_selected = DecayLogFrequency(tokenized_sents, selected, budget_this_round, budget_unit).run()
+            selected |= next_selected
+    else:
+        raise ValueError(f"Only budget units 'sentence' and 'token' are accepted: {budget_unit}")
     return selected
 
 
@@ -164,6 +184,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--lines')
     parser.add_argument('-o', '--outfile')
     parser.add_argument('-b', "--budget", type=float)
+    parser.add_argument('-u', "--budget-unit")
     parser.add_argument('-r', '--rounds', type=int)
     args = parser.parse_args()
 
@@ -171,7 +192,7 @@ if __name__ == "__main__":
     to_exclude = lines_to_exclude()
     for index in to_exclude:
         sentences[index] = [250004, 2]
-    selected_lines = run_delfy(sentences, args.budget, args.rounds)
+    selected_lines = run_delfy(sentences, args.budget, args.budget-unit, args.rounds)
     with open(args.outfile, 'w') as writer:
         for line in selected_lines:
             writer.write(f'{line}\n')
