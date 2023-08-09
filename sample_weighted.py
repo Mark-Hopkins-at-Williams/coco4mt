@@ -10,6 +10,14 @@ def weighted_sample(tokenized_sents, budget_pct):
     sentences, weighted by token length, accounting for sentences chosen
     multiple times, and iterating until the budget is exactly met. It uses a
     sentence budget.
+    always used).
+
+    Parameters
+    ----------
+    tokenized_sents : list[list[String]]
+        a list of all sentences, each organized as a list of tokens
+    budget_pct : float
+        the percentage of the total provided data (in either sentences or tokens) to select
     """
     total_tokens = 0
     for line in tokenized_sents:

@@ -11,9 +11,9 @@ def fill_sentence_budget(ranker, candidates, max_sents):
     Parameters
     ----------
     ranker : Ranker
-        ...
-    candidates : Iterable[str]???
-        ...
+        the Ranker object to be used to determine which sentences should be selected
+    candidates : Iterable[str]
+        the sentences to be ranked
     max_sents : int
         max number of sentences that the budget allows
     """
@@ -25,6 +25,15 @@ def fill_sentence_budget(ranker, candidates, max_sents):
 def fill_token_budget(ranker, candidates, max_tokens):
     """
     Using the specified ranker, fills the specified token budget.
+
+    Parameters
+    ----------
+    ranker : Ranker
+        the Ranker object to be used to determine which tokens should be selected
+    candidates : Iterable[str]
+        the sentences to be ranked
+    max_tokens : int
+        max number of tokens that the budget allows
     """
     length = 0
     selected = []
@@ -46,6 +55,13 @@ def lookup_ranker(ranker_name, budget_unit):
     When requesting the simcse ranker, uses the longest sentence from each
     cluster if using a sentence budget and a random sentence from each cluster
     if using a token budget.
+
+    Parameters
+    ----------
+    ranker_name : String
+        the name used to identify the appropriate ranker. Can be "simcse" or "uniform" or "length"
+    budget_unit : String
+        the measure for budgeting, either "sentence" or "token"
     """
     if ranker_name == "simcse":
         tiebreaker = "length" if budget_unit == "sentence" else "random"

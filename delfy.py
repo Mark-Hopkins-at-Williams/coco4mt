@@ -70,6 +70,11 @@ class DecayLogFrequency:
         """
         Calculates the function G(w|U) as defined in the paper, which is used
         to find the logarithm frequency of that word in the unselected corpus.
+
+        Parameters
+        ----------
+        word : String
+            the word to find G(word|U) for
         """
         return np.log(self.unselected_tok_counts[word] + 1)
 
@@ -77,6 +82,11 @@ class DecayLogFrequency:
         """
         Calculates the logarithm frequency of a word in the unselected corpus
         as defined in the paper.
+
+        Parameters
+        ----------
+        word : String
+            the word to find the logarithm frequency of
         """
         return self.gwu(word) / self.swugwu
 
@@ -84,6 +94,11 @@ class DecayLogFrequency:
         """
         Calculates the average logarithm frequency of all tokens in the
         sentence at the provided sentence index.
+
+        Parameters
+        ----------
+        sentence_index : int
+            the index of the sentence to find lf for in the lines file
         """
         lf = 0
         sentence = self.sentences[sentence_index]
@@ -99,6 +114,11 @@ class DecayLogFrequency:
         Calculates the decay term defined in the paper, which is used to reduce
         the delfy scores of sentences that are redundant when considering
         other sentences with higher lf scores.
+
+        Parameters
+        ----------
+        word : String
+            the word to identify the decay value for
         """
         csil = self.selected_tok_counts.get(word, 0)
         csius = self.uhat_tok_counts.get(word, 0)
@@ -108,6 +128,11 @@ class DecayLogFrequency:
         """
         Defines the delfy index, used to rank each
         unselected sentence in each round.
+
+        Parameters
+        ----------
+        sentence_index : int
+            the index of the sentence to find delfy for in the lines file
         """
         sentence = self.sentences[sentence_index]
         delfy = 0
@@ -121,6 +146,11 @@ class DecayLogFrequency:
     def token_count(self, sentence_indices):
         """
         Finds the number of tokens in the entire corpus. Used for budgeting.
+
+        Parameters
+        ----------
+        sentence_indices : Iterable[int]
+            the indices of all the sentences to search through to find the frequencies of all tokens
         """
         result = dict()
         for sent_index in sentence_indices:
@@ -133,6 +163,11 @@ class DecayLogFrequency:
 def tokenize_all_lines(filename):
     """
     Returns a list of all the lines in the provided file, tokenized.
+
+    Parameters
+    ----------
+    filename : String
+        the name of the file containing the lines to tokenize
     """
     model_checkpoint = "facebook/mbart-large-50-many-to-many-mmt"
     tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
@@ -149,6 +184,17 @@ def run_delfy(tokenized_sents, budget_percentage=0.2, budget_unit="sentence", nu
     """
     Runs the delfy algorithm as defined in the paper for the provided number of
     rounds, with the provided budget. Returns the final selection set.
+
+    Parameters
+    ----------
+    tokenized_sents : list[list[String]]
+        a list of all sentences, each organized as a list of tokens
+    budget_percentage : float
+        the percentage of the total provided data (in either sentences or tokens) to select
+    budget_unit : String
+        the measure for budgeting, either "sentence" or "token"
+    num_rounds : int
+        the number of rounds to execute the delfy algorithm
     """
     if budget_unit == "token":
         total_tok_count = 0

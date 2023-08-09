@@ -14,6 +14,17 @@ def train(src, tgt, line_file, evaluation_split="validation"):
     language, target language, file to take sentences from, and evalutation
     split from the coco4mt data. Expects ISO 639-1 language codes
     (e.g.: "en") for src and tgt.
+
+    Parameters
+    ----------
+    src : String
+        the source language. Expects the standard two-letter code.
+    tgt : String
+        the target language. Expects the standard two-letter code.
+    line_file : String
+        the name of the file containing the indices of the sentences from the coco4mt data for training
+    evaluation_split : String
+        the split of the coco4mt data to be used ("train", "validation", or "test")
     """
     lines = set()
     with open(line_file) as reader:
@@ -79,6 +90,11 @@ def train(src, tgt, line_file, evaluation_split="validation"):
     def compute_metrics(eval_preds):
         """
         Sets up and evaluates with BLEU given a list of predictions.
+
+        Parameters
+        ----------
+        eval_preds : list[list[String]]
+            the model-generated translation predictions
         """
         preds, labels = eval_preds
         # In case the model returns more than the prediction logits

@@ -30,6 +30,10 @@ class UniformRandomRanker(Ranker):
 
 
 class WeightedRandomRanker(Ranker):
-
+    """
+    Defines an object which takes a specified list of sentences,
+    selects them at random using a weighted distribution by length,
+    and returns them in that order.
+    """
     # TODO: support the rank method by borrowing code from sample_weighted.py
     pass

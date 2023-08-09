@@ -18,6 +18,11 @@ code3 = {
 def enumerate_lines(filename):
     """
     Returns a list containing the sentences in the specified file, stripped.
+
+    Parameters
+    ----------
+    filename : String
+        the file to take and enumerate lines from
     """
     lines = []
     with open(filename) as reader:
@@ -48,6 +53,14 @@ def coco_data(src, tgt, lines=None):
     for the training partition (the full validation and test sets are
     always used).
 
+    Parameters
+    ----------
+    src : String
+        the source language. Expects the standard three-letter code.
+    tgt : String
+        the target language. Expects the standard three-letter code.
+    lines : Iterable[int]
+        if specified, the lines to include from the coco4mt data
     """
     train_corpora = {'eng': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/hr_dataset/eng/train.txt"),
                      'deu': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/hr_dataset/deu/train.txt"),
@@ -116,6 +129,14 @@ def nllb_data(src, tgt, lines=None):
     for the training partition (the full validation and test sets are
     always used).
 
+    Parameters
+    ----------
+    src : String
+        the source language. Expects the standard three-letter code.
+    tgt : String
+        the target language. Expects the standard three-letter code.
+    lines : Iterable[int]
+        if specified, the lines to include from the NLLB data
     """
 
     data = []
