@@ -4,7 +4,7 @@ from fill_budget import fill_sentence_budget, fill_token_budget, lookup_ranker
 from simcse_rankers import SimCSERanker
 
 
-class TestTokDelfy(unittest.TestCase):
+class TestDelfy(unittest.TestCase):
 
     def test_tok_delfy1(self):
         sents = [['a', 'a', 'a', 'b', 'b'], 
@@ -100,6 +100,11 @@ class TestFillBudget(unittest.TestCase):
         ranker = lookup_ranker("length", "token")
         sent_ids = fill_token_budget(ranker, self.mitt, 37)
         self.assertEqual([4, 0, 3], sent_ids)
+
+    def test_fill_budget3(self):
+        ranker = lookup_ranker("weighted", "token")
+        weights = ranker.get_weights(self.mitt)
+        self.assertEqual([0.17647058823529413, 0.10294117647058823, 0.11764705882352941, 0.22058823529411764, 0.38235294117647056], weights)
 
 
 class TestSimCSERankerBudget(unittest.TestCase):

@@ -1,7 +1,7 @@
 from cocodata import load_coco_english
 import argparse
 from simcse_rankers import SimCSERanker
-from baselines import UniformRandomRanker, LengthRanker
+from baselines import UniformRandomRanker, LengthRanker, WeightedRandomRanker
 
 
 def fill_sentence_budget(ranker, candidates, max_sents):
@@ -69,7 +69,7 @@ def lookup_ranker(ranker_name, budget_unit):
     Parameters
     ----------
     ranker_name : String
-        the name used to identify the appropriate ranker. Can be "simcse" or "uniform" or "length"
+        the name used to identify the appropriate ranker. Can be "simcse" or "uniform" or "length" or "weighted"
     budget_unit : String
         the measure for budgeting, either "sentence" or "token"
 
@@ -85,6 +85,8 @@ def lookup_ranker(ranker_name, budget_unit):
         ranker = UniformRandomRanker()
     elif ranker_name == "length":
         ranker = LengthRanker()
+    elif ranker_name == "weighted":
+        ranker = WeightedRandomRanker()
     else:
         raise Exception(f"Unrecognized ranker: {ranker_name}")
     return ranker

@@ -12,7 +12,7 @@
 ### Use instructions:
 To get files containing sentence indices for the longest and random baselinesfrom the coco4mt English training split, use fill_budget.py. Enter a command of the form
 
-    python fill_budget.py -p [BUDGET PERCENTAGE (from 0 to 1)] -u [BUDGET UNIT (either "sentence" or "token")] -r [RANKER ("simcse", "uniform", or "length")] -c [PATH TO COCO4MT ENGLISH DATA]
+    python fill_budget.py -p [BUDGET PERCENTAGE (from 0 to 1)] -u [BUDGET UNIT (either "sentence" or "token")] -r [RANKER ("simcse", "uniform", "weighted", or "length")] -c [PATH TO COCO4MT ENGLISH DATA]
 
 
 To get a file containing sentence indices for a weighted random sample, use sample_weighted.py. Enter a command of the form
