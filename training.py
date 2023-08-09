@@ -95,6 +95,11 @@ def train(src, tgt, line_file, evaluation_split="validation"):
         ----------
         eval_preds : list[list[String]]
             the model-generated translation predictions
+
+        Returns
+        -------
+        dict
+            shows the BLEU score
         """
         preds, labels = eval_preds
         # In case the model returns more than the prediction logits

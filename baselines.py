@@ -11,6 +11,19 @@ class LengthRanker(Ranker):
         self.tokenizer_fn = tokenizer_fn
 
     def rank(self, sents):
+        """
+        Ranks the provided sentences based on length.
+
+        Parameters
+        ----------
+        sents : list[String]
+            the sentences to be ranked
+
+        Returns
+        -------
+        Generator[int]
+            generates the indices of the selected sentences, in order
+        """
         tokenized = [self.tokenizer_fn(sent) for sent in sents]
         sorted_sents = sorted(list(enumerate(tokenized)), key=lambda x: -len(x[1]))
         return [i for (i, _) in sorted_sents]
@@ -23,6 +36,19 @@ class UniformRandomRanker(Ranker):
     """
 
     def rank(self, sents):
+        """
+        Randomly ranks the provided sentences.
+
+        Parameters
+        ----------
+        sents : list[String]
+            the sentences to be ranked using SimCSE
+
+        Returns
+        -------
+        Generator[int]
+            generates the indices of the selected sentences, in random order
+        """
         line_nums = list(range(len(sents)))
         shuffle(line_nums)
         for line_num in line_nums:

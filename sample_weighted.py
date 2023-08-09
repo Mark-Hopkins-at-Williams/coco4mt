@@ -18,6 +18,11 @@ def weighted_sample(tokenized_sents, budget_pct):
         a list of all sentences, each organized as a list of tokens
     budget_pct : float
         the percentage of the total provided data (in either sentences or tokens) to select
+
+    Returns
+    -------
+    list[int]
+        the indices of the selected lines
     """
     total_tokens = 0
     for line in tokenized_sents:

@@ -23,6 +23,11 @@ def enumerate_lines(filename):
     ----------
     filename : String
         the file to take and enumerate lines from
+
+    Returns
+    -------
+    list[String]
+        the selected sentences
     """
     lines = []
     with open(filename) as reader:
@@ -37,6 +42,11 @@ def lines_to_exclude():
     Reads the exclude.txt file to find the indices of all the sentences defined
     as excluded (do not have translations in all languages), and returns a set
     containing those indices.
+
+    Returns
+    -------
+    set[int]
+        the indices of the selected sentences to be excluded
     """
     result = set()
     with open('exclude.txt') as reader:
@@ -60,7 +70,12 @@ def coco_data(src, tgt, lines=None):
     tgt : String
         the target language. Expects the standard three-letter code.
     lines : Iterable[int]
-        if specified, the lines to include from the coco4mt data
+        if specified, the lines to include from the Coco4MT data
+
+    Returns
+    -------
+    DatasetDict
+        the Coco4MT data, organized
     """
     train_corpora = {'eng': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/hr_dataset/eng/train.txt"),
                      'deu': enumerate_lines(f"{DATA_DIR}/coco4mt-shared-task/hr_dataset/deu/train.txt"),
@@ -137,6 +152,11 @@ def nllb_data(src, tgt, lines=None):
         the target language. Expects the standard three-letter code.
     lines : Iterable[int]
         if specified, the lines to include from the NLLB data
+
+    Returns
+    -------
+    DatasetDict
+        the NLLB data, organized
     """
 
     data = []

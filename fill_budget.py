@@ -16,6 +16,11 @@ def fill_sentence_budget(ranker, candidates, max_sents):
         the sentences to be ranked
     max_sents : int
         max number of sentences that the budget allows
+
+    Returns
+    -------
+    list[int]
+        the indices of the selected sentences
     """
     line_nums = list(ranker.rank(candidates))
     selected = line_nums[:max_sents]
@@ -34,6 +39,11 @@ def fill_token_budget(ranker, candidates, max_tokens):
         the sentences to be ranked
     max_tokens : int
         max number of tokens that the budget allows
+
+    Returns
+    -------
+    list[int]
+        the indices of the selected sentences
     """
     length = 0
     selected = []
@@ -62,6 +72,11 @@ def lookup_ranker(ranker_name, budget_unit):
         the name used to identify the appropriate ranker. Can be "simcse" or "uniform" or "length"
     budget_unit : String
         the measure for budgeting, either "sentence" or "token"
+
+    Returns
+    -------
+    Ranker
+        the identified Ranker
     """
     if ranker_name == "simcse":
         tiebreaker = "length" if budget_unit == "sentence" else "random"

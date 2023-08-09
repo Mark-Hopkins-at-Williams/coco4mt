@@ -27,6 +27,11 @@ class SimCSERanker(Ranker):
         ----------
         sents : list[String]
             the sentences to be ranked using SimCSE
+
+        Returns
+        -------
+        list[int]
+            the indices of the selected sentences, in order
         """
         nonempty_sents = [sent for sent in sents if len(sent) > 0]
         neighbor_sents = self.model.search(nonempty_sents, threshold=0.0)
