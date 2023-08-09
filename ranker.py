@@ -7,10 +7,14 @@ class Ranker(ABC):
         
         Parameters
         ----------
+        sents : list[String]
+            the sentences to be ranked
 
         Returns
         -------
+        Generator[int]
+            generates the indices of the selected sentences, in order
         
         """
-        raise NotImplementedError("implement me!")        
+        pass    
 
